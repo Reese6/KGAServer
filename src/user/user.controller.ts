@@ -27,19 +27,21 @@ export class UserController {
   }
 
   @Post('/login')
-  async login(
+  login(
     @Body() dto: LoginUserDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    try {
-      const { jwt, user } = await this.userService.getJwtAndUser(dto);
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { jwt, user } = await this.userService.getJwtAndUser(dto);
 
-      response.cookie('jwt', jwt, { httpOnly: true });
+        response.cookie('jwt', jwt, { httpOnly: true });
 
-      return { id: user._id || '', username: user.username };
-    } catch (error) {
-      return error;
-    }
+        resolve({ id: user._id || '', username: user.username });
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   @Get()
