@@ -16,8 +16,13 @@ export class UserService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
-    const hashPassword = await bcrypt.hash(dto.password, 12);
+    const checkUser = await this.userModel.findOne({ username: dto.username });
 
+    if (checkUser) {
+      throw new BadRequestException('A user with the same name already exists');
+    }
+
+    const hashPassword = await bcrypt.hash(dto.password, 12);
     const user = await this.userModel.create({
       ...dto,
       password: hashPassword,
